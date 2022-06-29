@@ -1,0 +1,36 @@
+---
+title: "IPUMS_graph"
+author: "Amisha Jain"
+date: '2022-06-29'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(ggthemes)
+library(ipumsr)
+source(usa_00001.R)
+```
+
+```{r}
+data |> 
+  select(INCTOT, EMPSTAT) |> 
+  mutate(incstat = as.integer(INCSTAT)) |> 
+  mutate(empstat = as.integer(EMPSTAT)) |> 
+  case_when(0 = "NA", 1 = "Employed", 
+            2 = "Unemployed", 3 = "Not in Labor Force") |> 
+  mutate(incot = na_if(9999999)) |> 
+   mutate(incot = incot / 100000) |> 
+  ggplot(aes(x = incot, 
+   y = ..scaled..,  fill = empstat, 
+color = empstat)) + geom_density(alpha = .3, na.rm  = TRUE) +
+  xlim(0,8) + scale_y_continuous(labels = scales::label_number()) +
+  scale_fill_discrete(name = "Employment Status") + 
+  scale_color_discrete(name = "Employment Status") +
+  theme_economist(dkpanel = TRUE) +
+labs(title = "2019 Income Distribution by Employment Status", 
+     caption = "Source: IPUMS (2019)", 
+     x = "Income: Values Scaled by 1/100000")
+```
+
